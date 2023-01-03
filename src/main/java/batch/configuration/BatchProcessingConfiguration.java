@@ -3,7 +3,7 @@ package batch.configuration;
 import batch.listener.JobExecutionListener;
 import batch.model.Persona;
 import batch.model.PersonaEntity;
-import batch.processor.EmployeeItemProcessor;
+import batch.processor.PersonaItemProcessor;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -79,13 +79,13 @@ public class BatchProcessingConfiguration {
 
 	@Bean
 	public ItemProcessor<Persona, PersonaEntity> processor() {
-		return new EmployeeItemProcessor();
+		return new PersonaItemProcessor();
 	}
 
 
 	// Este método crea un trabajo de Spring Batch que consiste en un único paso.
 	@Bean
-	public Job createEmployeeJob(JobExecutionListener listener, Step step1) {
+	public Job createPersonaJob(JobExecutionListener listener, Step step1) {
 		// Se crea una instancia de "Job" a partir de un "JobBuilderFactory".
 		return jobBuilderFactory
 				// Se le da un nombre al trabajo.

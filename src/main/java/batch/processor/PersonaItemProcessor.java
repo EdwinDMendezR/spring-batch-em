@@ -4,7 +4,7 @@ import batch.model.Persona;
 import batch.model.PersonaEntity;
 import org.springframework.batch.item.ItemProcessor;
 
-public class EmployeeItemProcessor implements ItemProcessor<Persona, PersonaEntity> {
+public class PersonaItemProcessor implements ItemProcessor<Persona, PersonaEntity> {
 
 	@Override
 	public PersonaEntity process(final Persona persona) throws Exception {
