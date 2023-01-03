@@ -25,7 +25,7 @@ public class HealtRestController {
     public String getStatus() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 
         JobParameters jobParameters = new JobParametersBuilder()
-                .addLong("createEmployeeJob", System.currentTimeMillis())
+                .addLong("createPersonaJob", System.currentTimeMillis())
                 .toJobParameters();
         jobLauncher.run(processJob, jobParameters);
 

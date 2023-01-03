@@ -1,9 +1,8 @@
 package batch.listener;
 
-import batch.model.Profile;
+import batch.model.PersonaEntity;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -14,7 +13,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Component
-public class EmpJobExecutionListener implements JobExecutionListener {
+public class JobExecutionListener implements org.springframework.batch.core.JobExecutionListener {
 
 	@Autowired
 	public JdbcTemplate jdbcTemplate;
@@ -31,16 +30,20 @@ public class EmpJobExecutionListener implements JobExecutionListener {
 	@Override
 	public void afterJob(JobExecution jobExecution) {
 		// Si el trabajo se completó con éxito, se imprime el número de registros que se insertaron
-		// en la tabla "profile".
+		// en la tabla "persona".
 		if(jobExecution.getStatus() == BatchStatus.COMPLETED) {
-			List<Profile> result = jdbcTemplate.query("SELECT empCode, empName, profileName FROM profile",
-					new RowMapper<Profile>() {
+			List<PersonaEntity> result = jdbcTemplate
+					.query("SELECT codigo, nombre FROM persona",
+					new RowMapper<PersonaEntity>() {
 						@Override
-						public Profile mapRow(ResultSet rs, int row) throws SQLException {
-							return new Profile(rs.getLong(1), rs.getString(2), rs.getString(3));
+						public PersonaEntity mapRow(ResultSet rs, int row) throws SQLException {
+							return new PersonaEntity(
+									rs.getString(1),
+									rs.getString(2)
+							);
 						}
 					});
-			System.out.println("Number of Records:"+result.size());
+			System.out.println("Records:"+result.size());
 		}
 	}
 

@@ -1,8 +1,8 @@
 package batch.configuration;
 
-import batch.listener.EmpJobExecutionListener;
-import batch.model.Employee;
-import batch.model.Profile;
+import batch.listener.JobExecutionListener;
+import batch.model.Persona;
+import batch.model.PersonaEntity;
 import batch.processor.EmployeeItemProcessor;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.batch.core.Job;
@@ -41,17 +41,17 @@ public class BatchProcessingConfiguration {
 	public StepBuilderFactory stepBuilderFactory;
 
 	@Bean
-	public FlatFileItemReader<Employee> reader() {
-		return new FlatFileItemReaderBuilder<Employee>()
-		  .name("employeeItemReader") // establece el nombre del objeto FlatFileItemReader
-		  .resource(new ClassPathResource("employees.csv")) // establece la ubicación del archivo que se va a leer
+	public FlatFileItemReader<Persona> reader() {
+		return new FlatFileItemReaderBuilder<Persona>()
+		  .name("flatFileItemReader") // establece el nombre del objeto FlatFileItemReader
+		  .resource(new ClassPathResource("person.csv")) // establece la ubicación del archivo que se va a leer
 		  .delimited() //indica que el archivo está delimitado por un caracter especial (como una coma) y no por un
 				// número fijo de caracteres
-		  .names(new String[]{ "empCode", "empName", "expInYears" }) // establece los nombres de los campos para cada
+		  .names(new String[]{ "codigo", "nombre" }) // establece los nombres de los campos para cada
 				// elemento en el archivo
-		  .fieldSetMapper(new BeanWrapperFieldSetMapper<Employee>() {{ // establece cómo se deben mapear los campos
+		  .fieldSetMapper(new BeanWrapperFieldSetMapper<Persona>() {{ // establece cómo se deben mapear los campos
 			  // leídos al objeto de destino
-			   setTargetType(Employee.class);
+			   setTargetType(Persona.class);
 		  }})
 		  .linesToSkip(1) //indica cuántas líneas del archivo se deben saltar al comienzo de la lectura. En este caso,
 				// se salta la primera línea, lo que suele ser útil si el archivo tiene un encabezado con los nombres
@@ -62,14 +62,14 @@ public class BatchProcessingConfiguration {
 
 	@Bean
 	// Este método crea un escritor de lotes de JDBC para objetos de tipo "Profile".
-	public JdbcBatchItemWriter<Profile> writer(DataSource dataSource) {
+	public JdbcBatchItemWriter<PersonaEntity> writer(DataSource dataSource) {
 		// Se crea una instancia de "JdbcBatchItemWriter" a partir de un "JdbcBatchItemWriterBuilder".
-		return new JdbcBatchItemWriterBuilder<Profile>()
+		return new JdbcBatchItemWriterBuilder<PersonaEntity>()
 				// Se establece un "itemSqlParameterSourceProvider" que utiliza las propiedades de un
 				// objeto "Profile" para proporcionar los parámetros de SQL.
-				.itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<Profile>())
-				// Se especifica la instrucción SQL que se usará para insertar datos en la tabla "profile".
-				.sql("INSERT INTO profile (empCode, empName, profileName) VALUES (:empCode, :empName, :profileName)")
+				.itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<PersonaEntity>())
+				// Se especifica la instrucción SQL que se usará para insertar datos en la tabla "persona".
+				.sql("INSERT INTO persona (codigo, nombre) VALUES (:codigo, :nombre)")
 				// Se establece la fuente de datos que se usará para conectarse a la base de datos.
 				.dataSource(dataSource)
 				// Se construye la instancia de "JdbcBatchItemWriter" y se devuelve.
@@ -78,18 +78,18 @@ public class BatchProcessingConfiguration {
 
 
 	@Bean
-	public ItemProcessor<Employee, Profile> processor() {
+	public ItemProcessor<Persona, PersonaEntity> processor() {
 		return new EmployeeItemProcessor();
 	}
 
 
 	// Este método crea un trabajo de Spring Batch que consiste en un único paso.
 	@Bean
-	public Job createEmployeeJob(EmpJobExecutionListener listener, Step step1) {
+	public Job createEmployeeJob(JobExecutionListener listener, Step step1) {
 		// Se crea una instancia de "Job" a partir de un "JobBuilderFactory".
 		return jobBuilderFactory
 				// Se le da un nombre al trabajo.
-				.get("createEmployeeJob")
+				.get("createPersonaJob")
 				// Se establece un "incrementer" para generar un identificador único para cada ejecución del trabajo.
 				.incrementer(new RunIdIncrementer())
 				// Se establece un "listener" para monitorear el progreso y los resultados del trabajo.
@@ -104,14 +104,14 @@ public class BatchProcessingConfiguration {
 
 	// Este método crea un paso de Spring Batch que procesa y escribe datos en lotes.
 	@Bean
-	public Step step1(ItemReader<Employee> reader, ItemWriter<Profile> writer,
-					  ItemProcessor<Employee, Profile> processor) {
+	public Step step1(ItemReader<Persona> reader, ItemWriter<PersonaEntity> writer,
+					  ItemProcessor<Persona, PersonaEntity> processor) {
 		// Se crea una instancia de "Step" a partir de un "StepBuilderFactory".
 		return stepBuilderFactory
 				// Se le da un nombre al paso.
 				.get("step1")
 				// Se establece el tamaño del lote en 5 elementos.
-				.<Employee, Profile>chunk(5)
+				.<Persona, PersonaEntity>chunk(5)
 				// Se establece el lector de datos que se utilizará para obtener los elementos a procesar.
 				.reader(reader)
 				// Se establece el procesador que se utilizará para transformar los elementos.
