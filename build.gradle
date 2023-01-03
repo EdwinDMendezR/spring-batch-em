@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-	// https://mvnrepository.com/artifact/org.springframework.batch/spring-batch-core
+
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-batch', version: '2.2.0.RELEASE'
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
